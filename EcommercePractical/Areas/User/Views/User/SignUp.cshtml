@@ -1,0 +1,72 @@
+﻿@model Register
+@{
+    ViewData["Title"] = "SignUp";
+}
+
+<h1> Register as a User </h1>
+
+<div class="container p-3" >
+    <div class="form-control mb-2 border" style="background-color:lightgray;">
+        <form method="post" >
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-floating col-6">
+                        <input asp-for="UserName" class="form-control" />
+                        <label asp-for="UserName"></label>
+                    </div>
+                    <br />
+                    <div class="form-floating col-6">
+                        <input asp-for="Email" class="form-control" />
+                        <label asp-for="Email"></label>
+                    </div>
+                    <br />
+                    <div class="form-floating col-6">
+                        <input asp-for="PhoneNumber" class="form-control" />
+                        <label asp-for="PhoneNumber"></label>
+                    </div>
+                    <br />
+                    <div class="form-floating col-6">
+                        <input asp-for="City" class="form-control" />
+                        <label asp-for="City"></label>
+                    </div>
+                    <br />
+                    <div class="form-floating col-6">
+                        <input asp-for="State" class="form-control" />
+                        <label asp-for="State"></label>
+                    </div>
+                    <br />
+                    <div class="form-floating col-6">
+                        <input asp-for="StreetAddress" class="form-control" />
+                        <label asp-for="StreetAddress"></label>
+                    </div>
+                    <br />
+                    <div class="form-floating col-6">
+                        <input asp-for="PostalCode" class="form-control" />
+                        <label asp-for="PostalCode"></label>
+                    </div>
+                    <br />
+                    <div class="form-floating col-6">
+                        <input type="password" asp-for="Password" class="form-control" />
+                        <label asp-for="Password"></label>
+                    </div>
+                    <br />
+                    <div class="form-floating col-6">
+                        <input type="password" asp-for="ConfirmPassword" class="form-control" />
+                        <label asp-for="ConfirmPassword"></label>
+                    </div>
+                    <br />
+                    <div class="form-floating">
+                        @if (@ViewBag.NotValidUser != null)
+                        {
+                            <label style="color:orangered"> @ViewBag.NotValidUser </label>
+                        }
+                    </div>
+                    <br />
+                    <button class="btn btn-info" type="submit" asp-controller="User" asp-action="SignUp"> Register </button>
+
+                    <a class="btn btn-info" asp-controller="User" asp-action="Login" asp-area="User"> Click here to Login </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

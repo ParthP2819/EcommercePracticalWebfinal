@@ -1,0 +1,112 @@
+﻿@model IEnumerable<Dealer>
+
+<div class="container ">
+    <div class="col-12 ">
+        <h2 class="text-center"> Dealer List </h2>
+    </div>
+</div>
+
+<table class="table table-bordered table-striped text-center" @*style="100%"*@ style="background-color:lightgray;">
+    <thead>
+        <tr>
+            <th> Username </th>
+            <th> Email </th>
+            <th> Street Address </th>
+            <th> City </th>
+            <th> State </th>
+            <th> Country </th>
+            <th> Postal Code </th>
+            <th> Status</th>
+            <th> Reason </th>
+            <th> Approve/Rejected </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var obj in Model)
+        {
+            <tr>
+                <td> @obj.UserName </td>
+                <td> @obj.Email </td>
+                <td> @obj.StreetAddress </td>
+                <td> @obj.City </td>
+                <td> @obj.State </td>
+                <td> @obj.Country </td>
+                <td> @obj.PostalCode </td>
+                <td> @obj.</td>
+                <td> @obj.status</td>
+                <td> @obj.Reason </td>
+                <td>
+                @if (obj.status == ShowAll.Status.Pending)
+                {
+                        <a type="button" asp-action="Approve" asp-route-email="@obj.Email" asp-controller="User" class="btn btn-sm btn-success">Approve</a>
+                        <button type="button" onclick="addpopup('@obj.Email')" class="btn btn-sm btn-danger">Rejected</button>
+                }
+                else if(obj.status==ShowAll.Status.Approves)
+                {
+                      <a type="button"  class="btn btn-sm btn-success">Block</a>
+
+                }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="modelpopup" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="mymodelcontent">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+    {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
+<script>
+    function addpopup(email) {
+
+
+        $.ajax({
+            url: '/User/User/Popup',
+            type: "GET",
+            data: "email=" + email,
+            success: function (result) {
+
+                $("#mymodelcontent").html(result);
+                $("#modelpopup").show();
+            },
+            error: function (err) {
+                console.log(err);
+
+            }
+        });
+    }
+    function rejectData() {
+        debugger;
+        var email = document.getElementById("email").value;
+        var reson = document.getElementById("reson").value;
+
+        $.ajax({
+            url: '/User/User/Reject',
+            type: "POST",
+            data: { 'email': email, 'reason': reson },
+            success: function (result) {
+                debugger;
+                console.log(result);
+                $("body").html(result);
+            },
+            error: function (err) {
+                debugger;
+                console.log(err);
+
+            }
+        });
+
+    }
+
+</script>

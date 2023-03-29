@@ -1,0 +1,19 @@
+﻿namespace Ecommerce.Models
+{
+    public class ShowAll
+    {
+        public enum Roles
+        {
+            Admin = 1,
+            SuperAdmin = 2,
+            Dealer = 3
+        }
+
+        public enum Status
+        {
+            Pending = 0,
+            Approves = 1,
+            Reject = 2
+        } 
+    }
+}
