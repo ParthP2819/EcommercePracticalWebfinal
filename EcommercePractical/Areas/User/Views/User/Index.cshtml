@@ -6,7 +6,7 @@
     </div>
 </div>
 
-<table class="table table-bordered table-striped text-center" @*style="100%"*@ style="background-color:lightgray;">
+<table class="table table-bordered table-striped " @*style="100%"*@ style="background-color:lightgray;">
     <thead>
         <tr>
             <th> Username </th>
@@ -32,20 +32,28 @@
                 <td> @obj.State </td>
                 <td> @obj.Country </td>
                 <td> @obj.PostalCode </td>
-                <td> @obj.</td>
                 <td> @obj.status</td>
+               
                 <td> @obj.Reason </td>
                 <td>
                 @if (obj.status == ShowAll.Status.Pending)
                 {
                         <a type="button" asp-action="Approve" asp-route-email="@obj.Email" asp-controller="User" class="btn btn-sm btn-success">Approve</a>
                         <button type="button" onclick="addpopup('@obj.Email')" class="btn btn-sm btn-danger">Rejected</button>
+                        //<a type="button" asp-action="Delete" asp-route-email="@obj.Email" asp-controller="User" class="btn btn-sm btn-success">Delete</a>
+                        
+                        
                 }
                 else if(obj.status==ShowAll.Status.Approves)
                 {
-                      <a type="button"  class="btn btn-sm btn-success">Block</a>
+                        <a type="button" asp-action="Block" asp-route-email="@obj.Email" class="btn btn-sm btn-success">Block</a>
 
-                }
+                    }
+                    else if (obj.status == ShowAll.Status.Block)
+                    {
+                        <a type="button" asp-action="Unblock" asp-route-email="@obj.Email" class="btn btn-sm btn-success">UnBlock</a>
+
+                    }
                 </td>
             </tr>
         }

@@ -44,3 +44,11 @@ Ahmedabad
 Gujarat
 Vejalpur
 380051
+
+
+
+==============================
+dynamic list = new ExpandoObject();
+
+list.Admin=_db.dealer.FirstOrDefault(x=>x.Email== email);
+list.user= _db.dealer.FirstOrDefault(x=>x.UserName==email);

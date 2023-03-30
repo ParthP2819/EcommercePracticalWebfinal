@@ -1,7 +1,10 @@
-﻿using Ecommerce.DataAccess.Data;
+﻿using Ecommerce.DataAccess;
+using Ecommerce.DataAccess.Data;
 using Ecommerce.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing;
+using System.Dynamic;
 using static Ecommerce.Models.ShowAll;
 
 namespace EcommercePractical.Areas.User.Controllers
@@ -9,21 +12,24 @@ namespace EcommercePractical.Areas.User.Controllers
     public class UserController : Controller
     {
         private ApplicationDbContext _db;
-        private UserManager<IdentityUser> _userManager;
+        private UserManager<ApplicationUser> _userManager;
         private RoleManager<IdentityRole> _roleManager;
-        private SignInManager<IdentityUser> _signInManager;
+        private SignInManager<ApplicationUser> _signInManager;
         private IHttpContextAccessor _httpContextAccessor;
+        private IEmailSender _emailSender;
 
 
-        public UserController(ApplicationDbContext db, UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager, SignInManager<IdentityUser> signInManager,
-            IHttpContextAccessor httpContextAccessor)
+
+        public UserController(ApplicationDbContext db, UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager,
+            IHttpContextAccessor httpContextAccessor, IEmailSender emailSender)
         {
             _db = db;
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _httpContextAccessor = httpContextAccessor;
+            _emailSender = emailSender;
         }
 
         public IActionResult Index()
@@ -73,7 +79,7 @@ namespace EcommercePractical.Areas.User.Controllers
             await _db.SaveChangesAsync();
             ViewBag.NotValidUser = "Admin will accept your email in short time:";
             //var registerUser =  await _signInManager.PasswordSignInAsync(register.Email, register.Password, false, false);
-            return RedirectToAction("SignUp");
+            return RedirectToAction("Login");
         }
 
         public async Task<IActionResult> Login()
@@ -90,7 +96,7 @@ namespace EcommercePractical.Areas.User.Controllers
 
             var result = await _signInManager.PasswordSignInAsync(user.Email, login.Password, false, false);
             //var userRoles = await _userManager.GetRolesAsync(user);
-            if (result.Succeeded)
+            if (result.Succeeded || user.IsActive==true )
             {
                 if (user.UserName == "SuperAdmin" || user.UserName == "Admin")
                 {
@@ -117,7 +123,7 @@ namespace EcommercePractical.Areas.User.Controllers
         {
             var dealer = _db.dealer.FirstOrDefault(x => x.Email == email);
 
-            IdentityUser user = new()
+            ApplicationUser user = new()
             {
                 Email = dealer.Email,
                 UserName = dealer.UserName,
@@ -138,16 +144,27 @@ namespace EcommercePractical.Areas.User.Controllers
             dealer.status = Status.Approves;
             _db.SaveChanges();
 
+
+            // send mail
+            var message = new Message(new string[] { dealer.Email }, "Test email", "This is the content from our email.");
+            _emailSender.SendEmail(message);
+
+
             return RedirectToAction("Index", "User");
         }
 
-        public IActionResult Reject(string email,string reason)
+        public IActionResult Reject(string email, string reason)
         {
-            var data = _db.dealer.FirstOrDefault(x=>x.Email==email);
-            data.status=Status.Reject;
+            var data = _db.dealer.FirstOrDefault(x => x.Email == email);
+            data.status = Status.Reject;
             data.Reason = reason;
             _db.dealer.Update(data);
             _db.SaveChanges();
+
+            // send mail
+            var message = new Message(new string[] { "panchalparth7122@gmail.com" }, "Test email", "This is the content from our email.");
+            _emailSender.SendEmail(message);
+
             return RedirectToAction("Index", "User");
         }
         [HttpGet]
@@ -155,6 +172,34 @@ namespace EcommercePractical.Areas.User.Controllers
         {
             ViewBag.Email = email;
             return PartialView("_Popup");
+        }
+        public async Task<IActionResult> Block(string email)
+        {
+
+            var user= await _userManager.FindByEmailAsync(email);
+            user.IsActive = false;
+
+            var data = _db.dealer.FirstOrDefault(x => x.Email == email);
+             data.status=Status.Block;
+
+            _db.dealer.Update(data);
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction("Index", "User");
+        }
+        public async Task<IActionResult> Unblock(string email)
+        {
+
+            var user = await _userManager.FindByEmailAsync(email);
+            user.IsActive = true;
+
+            var data = _db.dealer.FirstOrDefault(x => x.Email == email);
+            data.status = Status.Pending;
+
+            _db.dealer.Update(data);
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction("Index", "User");
         }
     }
 }

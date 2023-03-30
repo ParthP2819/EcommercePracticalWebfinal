@@ -13,7 +13,8 @@
         {
             Pending = 0,
             Approves = 1,
-            Reject = 2
+            Reject = 2,
+            Block = 3
         } 
     }
 }

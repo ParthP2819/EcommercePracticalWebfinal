@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static Ecommerce.Models.ShowAll;
 
 namespace Ecommerce.Models
 {
@@ -15,7 +16,7 @@ namespace Ecommerce.Models
         public string? Country { get; set; }
         public string PostalCode { get; set; }
         public string Password { get; set; }
-        public ShowAll.Status status { get; set; }
+        public Status status { get; set; }
         public string? Reason { get; set; }
     }
 }

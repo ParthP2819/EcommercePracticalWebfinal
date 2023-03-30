@@ -1,3 +1,4 @@
+using Ecommerce.DataAccess;
 using Ecommerce.DataAccess.Data;
 using Ecommerce.Models;
 using Microsoft.AspNetCore.Identity;
@@ -12,13 +13,21 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(
     connection, ServerVersion.AutoDetect(connection)));
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultTokenProviders().AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddDefaultTokenProviders().AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Adding Session
 builder.Services.AddSession(options =>
 {
     options.IOTimeout = TimeSpan.FromSeconds(1);
 });
+//adding scopped
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+//email configuration
+var emailConfig = builder.Configuration
+        .GetSection("EmailConfiguration")
+        .Get<EmailCon>();
+builder.Services.AddSingleton(emailConfig);
 
 // adding service for session
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
