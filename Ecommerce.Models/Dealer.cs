@@ -9,7 +9,7 @@ namespace Ecommerce.Models
         public string SecurityStamp { get; set; }
         [Key]
         public string Email { get; set; }
-        public int Phone { get; set; }
+        public string Phone { get; set; }
         public string StreetAddress { get; set; }
         public string City { get; set; }
         public string State { get; set; }

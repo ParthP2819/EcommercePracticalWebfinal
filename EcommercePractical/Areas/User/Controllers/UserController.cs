@@ -65,6 +65,7 @@ namespace EcommercePractical.Areas.User.Controllers
                 Email = register.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
                 UserName = register.UserName,
+                Phone = register.PhoneNumber,
                 StreetAddress = register.StreetAddress,
                 City = register.City,
                 PostalCode = register.PostalCode,
@@ -87,17 +88,17 @@ namespace EcommercePractical.Areas.User.Controllers
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(Login login)
         {
-            var user = await _userManager.FindByEmailAsync(login.Email);
-            //var result = await _signInManager.PasswordSignInAsync(login.Username, login.Password, false, false);
-
-            var result = await _signInManager.PasswordSignInAsync(user.Email, login.Password, false, false);
-            //var userRoles = await _userManager.GetRolesAsync(user);
+            var user = await _userManager.FindByEmailAsync(login.Email);          
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, login.Password, false, true);
+            
             if (result.Succeeded || user.IsActive==true )
             {
+                 HttpContext.Response.Cookies.Append("user", user.Email);    
                 if (user.UserName == "SuperAdmin" || user.UserName == "Admin")
                 {
                     return RedirectToAction("Index", "User");
@@ -108,7 +109,7 @@ namespace EcommercePractical.Areas.User.Controllers
                     {
                         Message = "Invalid Credentials",
                         Data = user,
-                        Status = "NotOk"
+                        Status = "Not Found"
                     });
                 }
             }
@@ -117,6 +118,13 @@ namespace EcommercePractical.Areas.User.Controllers
                 ViewBag.NotValidUser = "Invalid credentials:?";
                 return RedirectToAction("Index");
             }
+        }
+        
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            HttpContext.Response.Cookies.Delete("user");
+            return RedirectToAction("Login");
         }
 
         public async Task<IActionResult> Approve(string email)
@@ -128,6 +136,15 @@ namespace EcommercePractical.Areas.User.Controllers
                 Email = dealer.Email,
                 UserName = dealer.UserName,
                 PhoneNumber = dealer.Phone.ToString(),
+                City= dealer.City,
+                State = dealer.State,
+                Country = dealer.Country,
+                PostalCode= dealer.PostalCode,
+                IsActive = true,
+                StreetAddress= dealer.StreetAddress,
+                
+
+                
 
             };
             var result = await _userManager.CreateAsync(user, dealer.Password);
