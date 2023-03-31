@@ -9,7 +9,7 @@ using static Ecommerce.Models.ShowAll;
 
 namespace EcommercePractical.Areas.User.Controllers
 {
-    public class UserController : Controller
+    public class UserController   : Controller
     {
         private ApplicationDbContext _db;
         private UserManager<ApplicationUser> _userManager;
