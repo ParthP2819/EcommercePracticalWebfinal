@@ -3,6 +3,7 @@ using Ecommerce.DataAccess.Data;
 using Ecommerce.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using System.Drawing;
 using System.Dynamic;
 using static Ecommerce.Models.ShowAll;
@@ -32,10 +33,29 @@ namespace EcommercePractical.Areas.User.Controllers
             _emailSender = emailSender;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            IEnumerable<Dealer> dealerList = _db.dealer.ToList();
-            return View(dealerList);
+
+            var user = await _userManager.GetUserAsync(User);
+
+            var role = await _userManager.GetRolesAsync(user);
+            var curentRole=role.FirstOrDefault();
+            ViewBag.Role = curentRole;
+
+
+            dynamic obj = new ExpandoObject();
+            var dealerlist = _userManager.Users;
+            if (curentRole == Roles.SuperAdmin.ToString())
+            {
+                obj.dealer = dealerlist.Where(x => x.Status != Status.Admin).ToList();
+                obj.admin = await _userManager.GetUsersInRoleAsync("Admin");
+            }
+
+            if (curentRole == Roles.Admin.ToString())
+            {
+                obj.dealer = dealerlist.Where(x => x.Status != Status.Admin).ToList();
+            }
+            return View(obj);
         }
 
         public IActionResult SignUp()
@@ -54,33 +74,38 @@ namespace EcommercePractical.Areas.User.Controllers
                 return View("SignUp");
             }
             var dealer = _db.dealer.FirstOrDefault(x => x.Email == register.Email);
-            if (dealer != null)
+            if (dealer != null) 
             {
                 ViewBag.NotValidUser = "User already Exists:/";
                 return View("SignUp");
             }
-
-            Dealer dealerNew = new Dealer()
+         
+            ApplicationUser user = new ()
             {
                 Email = register.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
                 UserName = register.UserName,
-                Phone = register.PhoneNumber,
+                PhoneNumber = register.PhoneNumber,
                 StreetAddress = register.StreetAddress,
                 City = register.City,
                 PostalCode = register.PostalCode,
-                Country = "India",
+                Country = register.Country,
                 State = register.State,
-                status = ShowAll.Status.Pending,
-                Password = register.Password,
+                Status = ShowAll.Status.Pending,
                 Reason = ""
+                
 
             };
-            await _db.dealer.AddAsync(dealerNew);
-            await _db.SaveChangesAsync();
+
+            var result = await _userManager.CreateAsync(user,register.Password);
+            if(result.Succeeded){
             ViewBag.NotValidUser = "Admin will accept your email in short time:";
             //var registerUser =  await _signInManager.PasswordSignInAsync(register.Email, register.Password, false, false);
             return RedirectToAction("Login");
+              
+            }
+            //if(await _roleManager.RoleExistsAsync(Roles.Admin))
+            return View();
         }
 
         public async Task<IActionResult> Login()
@@ -94,95 +119,87 @@ namespace EcommercePractical.Areas.User.Controllers
         public async Task<IActionResult> Login(Login login)
         {
             var user = await _userManager.FindByEmailAsync(login.Email);          
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, login.Password, false, true);
-            
-            if (result.Succeeded || user.IsActive==true )
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, login.Password, false, false);
+
+
+
+          
+           var Roledata = await _userManager.GetRolesAsync(user);
+           
+           
+
+
+            var cRole = Roledata.FirstOrDefault();
+            ViewBag.Role = cRole;
+           
+
+            if(result.Succeeded)
             {
-                 HttpContext.Response.Cookies.Append("user", user.Email);    
-                if (user.UserName == "SuperAdmin" || user.UserName == "Admin")
-                {
-                    return RedirectToAction("Index", "User");
-                }
-                else
-                {
-                    return BadRequest(new ResponseModel
-                    {
-                        Message = "Invalid Credentials",
-                        Data = user,
-                        Status = "Not Found"
-                    });
-                }
-            }
-            else
-            {
-                ViewBag.NotValidUser = "Invalid credentials:?";
+                // HttpContext.Response.Cookies.Append("user", user.Email);
+                HttpContext.Session.SetString("user", cRole);
                 return RedirectToAction("Index");
             }
+            return Ok("Invalid");
+            //if (result.Succeeded || user.IsActive==true )
+            //{
+            //     HttpContext.Response.Cookies.Append("user", user.Email);    
+            //    if (user.UserName == "SuperAdmin" || user.UserName == "Admin")
+            //    {
+            //        return RedirectToAction("Index", "User");
+            //    }
+            //    else
+            //    {
+            //        return BadRequest(new ResponseModel
+            //        {
+            //            Message = "Invalid Credentials",
+            //            Data = user,
+            //            Status = "Not Found"
+            //        });
+            //    }
+            //}
+            //else
+            //{
+            //    ViewBag.NotValidUser = "Invalid credentials:?";
+            //    return RedirectToAction("Index");
+            //}
         }
         
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            HttpContext.Response.Cookies.Delete("user");
+
+            HttpContext.Session.Clear();
+
             return RedirectToAction("Login");
         }
 
         public async Task<IActionResult> Approve(string email)
         {
-            var dealer = _db.dealer.FirstOrDefault(x => x.Email == email);
-
-            ApplicationUser user = new()
-            {
-                Email = dealer.Email,
-                UserName = dealer.UserName,
-                PhoneNumber = dealer.Phone.ToString(),
-                City= dealer.City,
-                State = dealer.State,
-                Country = dealer.Country,
-                PostalCode= dealer.PostalCode,
-                IsActive = true,
-                StreetAddress= dealer.StreetAddress,
-                
-
-                
-
-            };
-            var result = await _userManager.CreateAsync(user, dealer.Password);
-
-            if (result.Succeeded)
-            {
-                if (!await _roleManager.RoleExistsAsync(Roles.Dealer.ToString())) //(Roles.Dealer.ToString()))
-                {
-                    await _roleManager.CreateAsync(new IdentityRole(Roles.Dealer.ToString()));
-                }
-                await _userManager.AddToRoleAsync(user, Roles.Dealer.ToString());
-            }
-
-            dealer.status = Status.Approves;
-            _db.SaveChanges();
-
-
+            var dealer = await _userManager.FindByEmailAsync(email);
+            dealer.Status= ShowAll.Status.Approves;                      
+            await _userManager.AddToRoleAsync(dealer, Roles.Dealer.ToString());
+            await _db.SaveChangesAsync();
             // send mail
             var message = new Message(new string[] { dealer.Email }, "Test email", "This is the content from our email.");
             _emailSender.SendEmail(message);
 
 
-            return RedirectToAction("Index", "User");
+            return RedirectToAction("Index");
         }
 
-        public IActionResult Reject(string email, string reason)
+        public async Task<IActionResult> Reject(string email, string reason)
         {
-            var data = _db.dealer.FirstOrDefault(x => x.Email == email);
-            data.status = Status.Reject;
+            var data = await _userManager.FindByEmailAsync(email);
+            data.Status = Status.Reject;
             data.Reason = reason;
-            _db.dealer.Update(data);
+            _db.Update(data);
             _db.SaveChanges();
 
             // send mail
             var message = new Message(new string[] { "panchalparth7122@gmail.com" }, "Test email", "This is the content from our email.");
             _emailSender.SendEmail(message);
 
-            return RedirectToAction("Index", "User");
+            return RedirectToAction("Index");
         }
         [HttpGet]
         public IActionResult Popup(string email)
@@ -196,13 +213,12 @@ namespace EcommercePractical.Areas.User.Controllers
             var user= await _userManager.FindByEmailAsync(email);
             user.IsActive = false;
 
-            var data = _db.dealer.FirstOrDefault(x => x.Email == email);
-             data.status=Status.Block;
 
-            _db.dealer.Update(data);
-            await _db.SaveChangesAsync();
 
-            return RedirectToAction("Index", "User");
+            user.Status = Status.Block;
+             await _db.SaveChangesAsync();
+
+            return RedirectToAction("Index");
         }
         public async Task<IActionResult> Unblock(string email)
         {
@@ -210,13 +226,11 @@ namespace EcommercePractical.Areas.User.Controllers
             var user = await _userManager.FindByEmailAsync(email);
             user.IsActive = true;
 
-            var data = _db.dealer.FirstOrDefault(x => x.Email == email);
-            data.status = Status.Pending;
+            user.Status = Status.Approves;
 
-            _db.dealer.Update(data);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("Index", "User");
+            return RedirectToAction("Index");
         }
     }
 }

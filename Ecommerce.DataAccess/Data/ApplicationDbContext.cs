@@ -9,6 +9,7 @@ namespace Ecommerce.DataAccess.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+        public DbSet<ApplicationUser> applicationUsers { get; set; }
         public DbSet<Dealer> dealer { get; set; }
     }
 }

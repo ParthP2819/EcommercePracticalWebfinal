@@ -1,9 +1,8 @@
-﻿@using Microsoft.AspNetCore.Identity;
+﻿
 @inject IHttpContextAccessor HttpContextAccessor
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManage
+
 @{
-    var data = Context.Request.Cookies["user"];
+    var data = HttpContextAccessor.HttpContext.Session.GetString("user");
 }
 <!DOCTYPE html>
 <html lang="en">

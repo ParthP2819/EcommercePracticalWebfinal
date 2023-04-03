@@ -11,6 +11,9 @@ namespace Ecommerce.Models
         public string PostalCode { get; set; }
         public string Country { get; set; }
         public bool IsActive { get; set; }
+        public ShowAll.Status Status { get; set; }
+        public string Reason { get; set; }
+
     }
-    
+
 }

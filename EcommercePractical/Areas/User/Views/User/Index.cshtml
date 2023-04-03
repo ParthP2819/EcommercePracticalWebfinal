@@ -1,8 +1,14 @@
-﻿@model IEnumerable<Dealer>
+﻿@*@model IEnumerable<Dealer>*@
+
+@model dynamic
+
+@if(ViewBag.Role == "SuperAdmin")
+{
+
 
 <div class="container ">
     <div class="col-12 ">
-        <h2 class="text-center"> Dealer List </h2>
+        <h2 class="text-center"> Admin List </h2>
     </div>
 </div>
 
@@ -22,7 +28,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach(var obj in Model)
+        @foreach(var obj in Model.admin)
         {
             <tr>
                 <td> @obj.UserName </td>
@@ -32,11 +38,11 @@
                 <td> @obj.State </td>
                 <td> @obj.Country </td>
                 <td> @obj.PostalCode </td>
-                <td> @obj.status</td>
+                <td> @obj.Status</td>
                
                 <td> @obj.Reason </td>
                 <td>
-                @if (obj.status == ShowAll.Status.Pending)
+                @if (obj.Status == ShowAll.Status.Pending)
                 {
                         <a type="button" asp-action="Approve" asp-route-email="@obj.Email" asp-controller="User" class="btn btn-sm btn-success">Approve</a>
                         <button type="button" onclick="addpopup('@obj.Email')" class="btn btn-sm btn-danger">Rejected</button>
@@ -44,12 +50,12 @@
                         
                         
                 }
-                else if(obj.status==ShowAll.Status.Approves)
+                else if(obj.Status==ShowAll.Status.Approves)
                 {
                         <a type="button" asp-action="Block" asp-route-email="@obj.Email" class="btn btn-sm btn-success">Block</a>
 
                     }
-                    else if (obj.status == ShowAll.Status.Block)
+                    else if (obj.Status == ShowAll.Status.Block)
                     {
                         <a type="button" asp-action="Unblock" asp-route-email="@obj.Email" class="btn btn-sm btn-success">UnBlock</a>
 
@@ -68,6 +74,80 @@
         </div>
     </div>
 </div>
+}
+
+
+@if (ViewBag.Role == "SuperAdmin" || ViewBag.Role == "Admin")
+{
+    <div class="container ">
+        <div class="col-12 ">
+            <h2 class="text-center"> Dealer List </h2>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped " @*style="100%"*@ style="background-color:lightgray;">
+        <thead>
+            <tr>
+                <th> Username </th>
+                <th> Email </th>
+                <th> Street Address </th>
+                <th> City </th>
+                <th> State </th>
+                <th> Country </th>
+                <th> Postal Code </th>
+                <th> Status</th>
+                <th> Reason </th>
+                <th> Approve/Rejected </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var obj in Model.dealer)
+            {
+                <tr>
+                    <td> @obj.UserName </td>
+                    <td> @obj.Email </td>
+                    <td> @obj.StreetAddress </td>
+                    <td> @obj.City </td>
+                    <td> @obj.State </td>
+                    <td> @obj.Country </td>
+                    <td> @obj.PostalCode </td>
+                    <td> @obj.Status</td>
+
+                    <td> @obj.Reason </td>
+                    <td>
+                        @if (obj.Status == ShowAll.Status.Pending)
+                        {
+                            <a type="button" asp-action="Approve" asp-route-email="@obj.Email" asp-controller="User" class="btn btn-sm btn-success">Approve</a>
+                            <button type="button" onclick="addpopup('@obj.Email')" class="btn btn-sm btn-danger">Rejected</button>
+                            //<a type="button" asp-action="Delete" asp-route-email="@obj.Email" asp-controller="User" class="btn btn-sm btn-success">Delete</a>
+
+
+                        }
+                        else if (obj.Status == ShowAll.Status.Approves)
+                        {
+                            <a type="button" asp-action="Block" asp-route-email="@obj.Email" class="btn btn-sm btn-success">Block</a>
+
+                        }
+                        else if (obj.Status == ShowAll.Status.Block)
+                        {
+                            <a type="button" asp-action="Unblock" asp-route-email="@obj.Email" class="btn btn-sm btn-success">UnBlock</a>
+
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div id="modelpopup" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div id="mymodelcontent">
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @section Scripts
     {
@@ -114,7 +194,5 @@
 
             }
         });
-
     }
-
 </script>
