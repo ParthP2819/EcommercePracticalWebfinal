@@ -4,6 +4,7 @@ namespace Ecommerce.Models
 {
     public class Login
     {
+
         [Required(ErrorMessage = "Email is required")]
         public string Email { get; set; }
 

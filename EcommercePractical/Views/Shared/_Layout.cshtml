@@ -1,4 +1,11 @@
-﻿
+﻿@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IHttpContextAccessor HttpContextAccessor
+@*@{
+    var data = User.Identity.Name;
+}
+*@
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
@@ -37,15 +44,17 @@
                         else if (data != null)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="User" asp-controller="User" asp-action="Logout">Logout</a>
+                                <a class="nav-link text-dark" asp-area="User" asp-controller="User" asp-action="Logout">Hello @User.Identity.Name Logout</a>
                             </li>
                         }
                     </ul>
+                    @*<partial name="_acp" />*@
                 </div>
                 @*@if (!string.IsNullOrEmpty(data))
                 {
                 <a asp-controller="User" asp-action="Logout" asp-area="User"> Logout </a>
                 }*@
+                @*<partial name="_header" />*@
             </div>
         </nav>
     </header>

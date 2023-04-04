@@ -4,6 +4,8 @@ using Ecommerce.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Win32;
+using MimeKit;
 using System.Drawing;
 using System.Dynamic;
 using static Ecommerce.Models.ShowAll;
@@ -32,29 +34,48 @@ namespace EcommercePractical.Areas.User.Controllers
             _httpContextAccessor = httpContextAccessor;
             _emailSender = emailSender;
         }
-
+        
         public async Task<IActionResult> Index()
         {
+            if(!User.Identity.IsAuthenticated)
+            {
+                return View("page");
+            }
+            //ViewBag.Role = HttpContext.Session.GetString("user");
 
-            var user = await _userManager.GetUserAsync(User);
-
-            var role = await _userManager.GetRolesAsync(user);
+            var user = await _userManager.GetUserAsync(User );
+             var role = await _userManager.GetRolesAsync(user);
             var curentRole=role.FirstOrDefault();
+            //var curentRole= ViewBag.Role;
             ViewBag.Role = curentRole;
 
 
             dynamic obj = new ExpandoObject();
-            var dealerlist = _userManager.Users;
+            var dealerlist =await _userManager.GetUsersInRoleAsync(Roles.Dealer.ToString());
+            
             if (curentRole == Roles.SuperAdmin.ToString())
             {
-                obj.dealer = dealerlist.Where(x => x.Status != Status.Admin).ToList();
+                obj.dealer = dealerlist;
                 obj.admin = await _userManager.GetUsersInRoleAsync("Admin");
             }
 
             if (curentRole == Roles.Admin.ToString())
             {
-                obj.dealer = dealerlist.Where(x => x.Status != Status.Admin).ToList();
+                obj.dealer = dealerlist;
             }
+            if(curentRole == Roles.Dealer.ToString())
+            {
+                if (user.Status == Status.Approves)
+                {
+                    obj.product = _db.product.ToList();
+                }
+                else
+                {
+                    HttpContext.Session.Clear();
+                    return RedirectToAction("Login");
+                }
+            }
+           
             return View(obj);
         }
 
@@ -73,12 +94,12 @@ namespace EcommercePractical.Areas.User.Controllers
                 ViewBag.NotValidUser = "Both Password should match";
                 return View("SignUp");
             }
-            var dealer = _db.dealer.FirstOrDefault(x => x.Email == register.Email);
-            if (dealer != null) 
-            {
-                ViewBag.NotValidUser = "User already Exists:/";
-                return View("SignUp");
-            }
+            //var dealer = _db.dealer.FirstOrDefault(x => x.Email == register.Email);
+            //if (dealer != null) 
+            //{
+            //    ViewBag.NotValidUser = "User already Exists:/";
+            //    return View("SignUp");
+            //}
          
             ApplicationUser user = new ()
             {
@@ -100,12 +121,52 @@ namespace EcommercePractical.Areas.User.Controllers
             var result = await _userManager.CreateAsync(user,register.Password);
             if(result.Succeeded){
             ViewBag.NotValidUser = "Admin will accept your email in short time:";
-            //var registerUser =  await _signInManager.PasswordSignInAsync(register.Email, register.Password, false, false);
-            return RedirectToAction("Login");
+                await _userManager.AddToRoleAsync(user, Roles.Dealer.ToString());
+                //var registerUser =  await _signInManager.PasswordSignInAsync(register.Email, register.Password, false, false);
+                return RedirectToAction("Login");
               
             }
             //if(await _roleManager.RoleExistsAsync(Roles.Admin))
             return View();
+        }
+
+        public IActionResult AddAdmin()
+        {
+            return View("SignUp");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddAdmin(Register register) //Roles roles)
+        {
+            var userExists = await _userManager.FindByNameAsync(register.UserName);
+            if (userExists != null)
+                return Ok("User already exists!");
+
+            ApplicationUser user = new ApplicationUser()
+            {
+                Email = register.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = register.UserName,
+                PhoneNumber = register.PhoneNumber,
+                StreetAddress = register.StreetAddress,
+                City = register.City,
+                PostalCode = register.PostalCode,
+                Country = register.Country,
+                State = register.State,
+                Status = ShowAll.Status.Pending,
+                Reason = ""
+
+            };
+            var result = await _userManager.CreateAsync(user, register.Password);
+            if (!result.Succeeded)
+                return Ok("User creation failed! Please check user details and try again.");
+
+            if (await _roleManager.RoleExistsAsync(Roles.Admin.ToString()))
+            {
+                await _userManager.AddToRoleAsync(user, Roles.Admin.ToString());
+            }
+
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Login()
@@ -120,48 +181,23 @@ namespace EcommercePractical.Areas.User.Controllers
         {
             var user = await _userManager.FindByEmailAsync(login.Email);          
             var result = await _signInManager.PasswordSignInAsync(user.UserName, login.Password, false, false);
-
-
-
-          
-           var Roledata = await _userManager.GetRolesAsync(user);
-           
-           
-
-
+            var temp = await _signInManager.CheckPasswordSignInAsync(user, login.Password,false);
+            var Roledata = await _userManager.GetRolesAsync(user);
             var cRole = Roledata.FirstOrDefault();
             ViewBag.Role = cRole;
-           
-
-            if(result.Succeeded)
+            if (result.Succeeded && temp.Succeeded)
             {
                 // HttpContext.Response.Cookies.Append("user", user.Email);
                 HttpContext.Session.SetString("user", cRole);
                 return RedirectToAction("Index");
             }
+            //else if(!result.Succeeded)
+            //{
+            //    HttpContext.Session.SetString("user", cRole);
+            //    return RedirectToAction("Index", "Product");
+            //}
             return Ok("Invalid");
-            //if (result.Succeeded || user.IsActive==true )
-            //{
-            //     HttpContext.Response.Cookies.Append("user", user.Email);    
-            //    if (user.UserName == "SuperAdmin" || user.UserName == "Admin")
-            //    {
-            //        return RedirectToAction("Index", "User");
-            //    }
-            //    else
-            //    {
-            //        return BadRequest(new ResponseModel
-            //        {
-            //            Message = "Invalid Credentials",
-            //            Data = user,
-            //            Status = "Not Found"
-            //        });
-            //    }
-            //}
-            //else
-            //{
-            //    ViewBag.NotValidUser = "Invalid credentials:?";
-            //    return RedirectToAction("Index");
-            //}
+           
         }
         
         public async Task<IActionResult> Logout()
@@ -177,7 +213,7 @@ namespace EcommercePractical.Areas.User.Controllers
         {
             var dealer = await _userManager.FindByEmailAsync(email);
             dealer.Status= ShowAll.Status.Approves;                      
-            await _userManager.AddToRoleAsync(dealer, Roles.Dealer.ToString());
+           
             await _db.SaveChangesAsync();
             // send mail
             var message = new Message(new string[] { dealer.Email }, "Test email", "This is the content from our email.");
@@ -232,6 +268,30 @@ namespace EcommercePractical.Areas.User.Controllers
 
             return RedirectToAction("Index");
         }
+
+
+        //if (result.Succeeded || user.IsActive==true )
+        //{
+        //     HttpContext.Response.Cookies.Append("user", user.Email);    
+        //    if (user.UserName == "SuperAdmin" || user.UserName == "Admin")
+        //    {
+        //        return RedirectToAction("Index", "User");
+        //    }
+        //    else
+        //    {
+        //        return BadRequest(new ResponseModel
+        //        {
+        //            Message = "Invalid Credentials",
+        //            Data = user,
+        //            Status = "Not Found"
+        //        });
+        //    }
+        //}
+        //else
+        //{
+        //    ViewBag.NotValidUser = "Invalid credentials:?";
+        //    return RedirectToAction("Index");
+        //}
     }
 }
 

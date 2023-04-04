@@ -1,0 +1,24 @@
+﻿@*@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var data = User.Identity.Name;
+}
+<ul class="navbar-nav flex-grow-1">
+    @if (data == null || data == "")
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="User" asp-controller="User" asp-action="SignUp">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="User" asp-controller="User" asp-action="Login">Login</a>
+        </li>
+    }
+    else if (data != null)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="User" asp-controller="User" asp-action="Logout">Hello @User.Identity.Name Logout</a>
+        </li>
+    }
+</ul>*@

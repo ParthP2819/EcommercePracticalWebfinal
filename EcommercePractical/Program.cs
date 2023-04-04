@@ -18,7 +18,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddDefaultTokenPro
 // Adding Session
 builder.Services.AddSession(options =>
 {
-    options.IOTimeout = TimeSpan.FromSeconds(1);
+    options.IOTimeout = TimeSpan.FromHours(1);
 });
 //adding scopped
 builder.Services.AddScoped<IEmailSender, EmailSender>();
@@ -44,17 +44,11 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseSession();
-
 app.UseRouting();
-
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=User}/{controller=Home}/{action=Index}/{id?}");
-
 app.Run();

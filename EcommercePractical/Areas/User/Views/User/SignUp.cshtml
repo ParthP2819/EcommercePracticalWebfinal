@@ -66,8 +66,16 @@
                             <label style="color:orangered"> @ViewBag.NotValidUser </label>
                         }
                     </div>
-                    <br />
-                    <button class="btn btn-info" type="submit" asp-controller="User" asp-action="SignUp"> Register </button>
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <button class="btn btn-info" type="submit" asp-controller="User" asp-action="AddAdmin"> AddAdmin </button>
+
+                    }
+                    else 
+                    {
+                       <button class="btn btn-info" type="submit" asp-controller="User" asp-action="SignUp"> Register </button>
+
+                    }
 
                     <a class="btn btn-info" asp-controller="User" asp-action="Login" asp-area="User"> Click here to Login </a>
                 </div>
