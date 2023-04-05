@@ -1,0 +1,153 @@
+﻿@if (ViewBag.Role == "Dealer")
+{
+    <div class="container" p-3>
+        <div class="row" p-4>
+            <div class="col-6">
+                <h2 class="text-primary">Product List</h2>
+            </div>
+            <div class="col-6 text-end">
+                <a asp-controller="Product" asp-action="Upsert" class="btn btn-primary">
+                    <i class="bi bi-plus-square"></i> &nbsp; Create New Product
+                </a>
+            </div>
+        </div>
+        <br />
+        <table id="tblData" class="table table-bordered table-striped text-center" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>IsActive</th>
+
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var obj in Model.product)
+                {
+                    <tr>
+                        <td width="25%"> @obj.Name </td>
+                        <td width="25%"> @obj.Description </td>
+                        <td width="25%"> @obj.Price </td>
+                        <td width="25%"> @obj.IsActive </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+
+===============Add Product======html=======
+<form method="post" asp-action="AddProduct" enctype="multipart/form-data">
+    <input asp-for="CreatedBy" hidden />
+    <input asp-for="ImageUrl" hidden />
+
+    <div class="row">
+        <div class="col-10">
+            <div class="border p-3 mt-4 row">
+                <div class="col-12 pb-2">
+                    <div>
+                    <h2 class="text-primary">@(Model.Id != 0 ? "Update" : "Create") Product</h2>
+                    <hr />
+                    </div>
+                </div>
+                <div asp-validation-summary="All"></div>
+                <div class="mb-3">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div><div class="mb-3">
+                    <label asp-for="Description"></label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div><div class="mb-3">
+                    <label asp-for="Price"></label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="IsActive"></label>
+                    <input asp-for="IsActive" class="form-control" />
+                    <span asp-validation-for="IsActive" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="ImageUrl"></label>
+                    <input type="file" id="uploadBox" name="file" class="form-control" />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="IsActive"></label>
+                    <input asp-for="IsActive" class="form-control" />
+                    <span asp-validation-for="IsActive" class="text-danger"></span>
+                </div>
+
+                <div class="col-6">
+                    @if (Model.Id != 0)
+                    {
+                        <button type="submit" class="btn btn-primary" style="width:150px">Update</button>
+                    }
+                    else
+                    {
+                        <button type="submit" onclick="return ValidateInput()" class="btn btn-primary" style="width:150px">Create</button>
+                    }
+                    <a asp-controller="Product" asp-action="Index" class="btn btn-secondary" style="width:150px">
+                        Back To List
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-2 pt-4">
+            <img src="@Model.ImageUrl"
+                 width="100%" style="border-radius:5px; border:1px solid #bbb9b9" />
+        </div>
+
+    </div>
+
+</form>
+==============================
+@model dynamic
+
+<div class="container p-3 ">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-info"> Product List </h2>
+        </div>
+        <div class="col-6 text-end">
+            @if (ViewBag.Role == "Dealer")
+            {
+                <a asp-area="User" asp-controller="Product" asp-action="AddProduct" class="btn btn-primary">
+                    <i class="bi bi-plus-square"></i> &nbsp; Create New Product
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<table class="table table-bordered table-striped " style="background-color:lightgray;">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>IsActive</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var obj in Model.product)
+        {
+            <tr>
+                <td width="25%"> @obj.Name </td>
+                <td width="25%"> @obj.Description </td>
+                <td width="25%"> @obj.Price </td>
+                <td width="25%"> @obj.IsActive </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section Scripts{
+        <script src="~/js/product.js"></script>
+}

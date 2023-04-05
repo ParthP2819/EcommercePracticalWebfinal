@@ -2,6 +2,7 @@
 using Ecommerce.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 
 namespace EcommercePractical.Areas.User.Controllers
 {
@@ -10,48 +11,50 @@ namespace EcommercePractical.Areas.User.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _db;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
-
-        public ProductController(UserManager<ApplicationUser> userManager,RoleManager<IdentityRole> roleManager,ApplicationDbContext db)
+        public ProductController(UserManager<ApplicationUser> userManager,RoleManager<IdentityRole> roleManager, ApplicationDbContext db, IWebHostEnvironment hostEnvironment)
         {
-            _db= db;
-            _userManager= userManager;
-            _roleManager= roleManager;
+            _db = db;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _hostEnvironment = hostEnvironment;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Index(string? id)
-        {
-            return View();
-            var user = await _userManager.GetUserAsync(User);
-            var role = await _userManager.GetRolesAsync(user);
-            var currentrole = role.FirstOrDefault();
-            ViewBag.roletype = currentrole;
-            if (id == null)
-            {
-                var userd = await _userManager.GetUserAsync(User);
-                ViewBag.UserName = user.Email;
-                var data = _db.product.Where(x => x.CreatedBy == userd.Id).ToList();
-                return View(data);
-            }
-            else if (id != null)
-            {
-                var userdata = await _userManager.FindByEmailAsync(id);
-                var data = _db.product.Where(x => x.CreatedBy == userdata.Id).ToList();
-                return View(data);
-            }
-            else
-            {
-                return View();
-            }
-        }
-       
+        //[HttpGet]
+        //public async Task<IActionResult> Index(string? id)
+        //{
+        //    return View();
+        //    var user = await _userManager.GetUserAsync(User);
+        //    var role = await _userManager.GetRolesAsync(user);
+        //    var currentrole = role.FirstOrDefault();
+        //    ViewBag.roletype = currentrole;
+        //    if (id == null)
+        //    {
+        //        var userd = await _userManager.GetUserAsync(User);
+        //        ViewBag.UserName = user.Email;
+        //        var data = _db.product.Where(x => x.CreatedBy == userd.Id).ToList();
+        //        return View(data);
+        //    }
+        //    else if (id != null)
+        //    {
+        //        var userdata = await _userManager.FindByEmailAsync(id);
+        //        var data = _db.product.Where(x => x.CreatedBy == userdata.Id).ToList();
+        //        return View(data);
+        //    }
+        //    else
+        //    {
+        //        return View();
+        //    }
+        //}
+
         [HttpGet]
         public IActionResult AddProduct(int? id) 
         {
+            var prod = new Product();
             if (id == null)
             {
-                return View();
+                return View(prod);
             }
             else
             {
@@ -59,13 +62,53 @@ namespace EcommercePractical.Areas.User.Controllers
                 return View(data);
             }
         }
-        public async Task<IActionResult> AddProduct(Product product)
+        [HttpPost]
+        public async Task<IActionResult> AddProduct(Product obj,IFormFile? file)
         {
             var data = await _userManager.GetUserAsync(User);
-            product.CreatedBy = data.Id;
-            await _db.product.AddAsync(product);
-            await _db.SaveChangesAsync();
-            return RedirectToAction("Index");
+            obj.CreatedBy = data.Id;
+
+            if (ModelState.IsValid)
+            {
+                string wwwRootPath = _hostEnvironment.WebRootPath;
+                if (file != null)
+                {
+                    string fileName = Guid.NewGuid().ToString();
+                    var uploads = Path.Combine(wwwRootPath, @"images\products");
+                    var extension = Path.GetExtension(file.FileName);
+
+                    if (obj.ImageUrl != null)
+                    {
+                        var oldImagePath = Path.Combine(wwwRootPath, obj.ImageUrl.TrimStart('\\'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    using (var fileStreams = new FileStream(Path.Combine(uploads, fileName + extension), FileMode.Create))
+                    {
+                        file.CopyTo(fileStreams);
+                    }
+                    obj.ImageUrl = /*wwwRootPath +*/ @"\images\products\" + fileName + extension;
+                }
+                if (obj.Id == 0)
+                {
+                    _db.Add(obj);
+                }
+                else
+                {
+                    _db.Update(obj);
+                }
+                await _db.SaveChangesAsync();
+                //TempData["success"] = "Product Create Successfully";
+                return RedirectToAction("Index","User");
+            }
+            return View(obj);
+
+            //await _db.product.AddAsync(obj);
+            //await _db.SaveChangesAsync();
+            //return RedirectToAction("Index","User");
         }
 
         //Edit Product

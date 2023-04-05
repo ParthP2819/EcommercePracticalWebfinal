@@ -4,9 +4,8 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @*@{
     var data = User.Identity.Name;
-}
-*@
-@inject IHttpContextAccessor HttpContextAccessor
+}*@
+
 
 @{
     var data = HttpContextAccessor.HttpContext.Session.GetString("user");

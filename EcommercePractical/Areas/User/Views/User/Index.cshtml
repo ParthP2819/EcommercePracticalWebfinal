@@ -23,14 +23,6 @@
             <tr>
                 <th> Username </th>
                 <th> Email </th>
-                @*<th> Street Address </th>
-                <th> City </th>
-                <th> State </th>
-                <th> Country </th>
-                <th> Postal Code </th>
-                <th> Status</th>
-                <th> Reason </th>
-                <th> Approve/Rejected </th>*@
             </tr>
         </thead>
         <tbody>
@@ -39,34 +31,6 @@
                 <tr>
                     <td width="50%"> @obj.UserName </td>
                     <td width="50%"> @obj.Email </td>
-                    @*<td> @obj.StreetAddress </td>
-                    <td> @obj.City </td>
-                    <td> @obj.State </td>
-                    <td> @obj.Country </td>
-                    <td> @obj.PostalCode </td>
-                    <td> @obj.Status</td>
-
-                    <td> @obj.Reason </td>
-                    <td>
-                        @if (obj.Status == ShowAll.Status.Pending)
-                        {
-                            <a type="button" asp-action="Approve" asp-route-email="@obj.Email" asp-controller="User" class="btn btn-sm btn-success">Approve</a>
-                            <button type="button" onclick="addpopup('@obj.Email')" class="btn btn-sm btn-danger">Rejected</button>
-                            //<a type="button" asp-action="Delete" asp-route-email="@obj.Email" asp-controller="User" class="btn btn-sm btn-success">Delete</a>
-
-
-                        }
-                        else if (obj.Status == ShowAll.Status.Approves)
-                        {
-                            <a type="button" asp-action="Block" asp-route-email="@obj.Email" class="btn btn-sm btn-success">Block</a>
-
-                        }
-                        else if (obj.Status == ShowAll.Status.Block)
-                        {
-                            <a type="button" asp-action="Unblock" asp-route-email="@obj.Email" class="btn btn-sm btn-success">UnBlock</a>
-
-                        }
-                    </td>*@
                 </tr>
             }
         </tbody>
@@ -82,12 +46,10 @@
     </div>
 }
 
-
-@if (ViewBag.Role == "SuperAdmin" || ViewBag.Role == "Admin")
+@if (ViewBag.Role == "SuperAdmin" || ViewBag.Role == "Admin")@* || ViewBag.Role == "Dealer")*@
 {
-
-    <div class="container ">
-        <div class="col-12 ">
+    <div class="container">
+        <div class="col-12">
             <h2 class=" text-info"> Dealer List </h2>
         </div>
     </div>
@@ -97,11 +59,6 @@
             <tr>
                 <th> Username </th>
                 <th> Email </th>
-               @* <th> Street Address </th>
-                <th> City </th>
-                <th> State </th>
-                <th> Country </th>
-                <th> Postal Code </th>*@
                 <th> Status</th>
                 <th> Reason </th>
                 <th> Approve/Rejected </th>
@@ -113,13 +70,7 @@
                 <tr>
                     <td> @obj.UserName </td>
                     <td> @obj.Email </td>
-                    @*<td> @obj.StreetAddress </td>
-                    <td> @obj.City </td>
-                    <td> @obj.State </td>
-                    <td> @obj.Country </td>
-                    <td> @obj.PostalCode </td>*@
                     <td> @obj.Status</td>
-
                     <td> @obj.Reason </td>
                     <td>
                         @if (obj.Status == ShowAll.Status.Pending)
@@ -127,18 +78,14 @@
                             <a type="button" asp-action="Approve" asp-route-email="@obj.Email" asp-controller="User" class="btn btn-sm btn-success">Approve</a>
                             <button type="button" onclick="addpopup('@obj.Email')" class="btn btn-sm btn-danger">Rejected</button>
                             //<a type="button" asp-action="Delete" asp-route-email="@obj.Email" asp-controller="User" class="btn btn-sm btn-success">Delete</a>
-
-
                         }
                         else if (obj.Status == ShowAll.Status.Approves)
                         {
                             <a type="button" asp-action="Block" asp-route-email="@obj.Email" class="btn btn-sm btn-success">Block</a>
-
                         }
                         else if (obj.Status == ShowAll.Status.Block)
                         {
                             <a type="button" asp-action="Unblock" asp-route-email="@obj.Email" class="btn btn-sm btn-success">UnBlock</a>
-
                         }
                     </td>
                 </tr>
@@ -156,44 +103,53 @@
     </div>
 }
 
-@if (ViewBag.Role == "Dealer")
+@if (ViewBag.Role == "SuperAdmin" || ViewBag.Role == "Admin" || ViewBag.Role == "Dealer")
 {
-    <div class="container" p-3>
-        <div class="row" p-4>
-            <div class="col-6">
-                <h2 class="text-primary">Product List</h2>
+    <div class="container p-3">
+        <div class="row pt-4">
+            <div class="col-6 ">
+                <h2 class=" text-info"> Product List </h2>
             </div>
             <div class="col-6 text-end">
-                <a asp-controller="Product" asp-action="Upsert" class="btn btn-primary">
-                    <i class="bi bi-plus-square"></i> &nbsp; Create New Product
-                </a>
+                @if (ViewBag.Role == "Dealer")
+                {
+                    <a asp-area="User" asp-controller="Product" asp-action="AddProduct" class="btn btn-primary">
+                        <i class="bi bi-plus-square"></i> &nbsp; Create New Product
+                    </a>
+                }
             </div>
         </div>
-        <br />
-        <table id="tblData" class="table table-bordered table-striped text-center" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Price</th>
-                    <th>IsActive</th>
-
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var obj in Model.product)
-                {
-                    <tr>
-                        <td width="25%"> @obj.Name </td>
-                        <td width="25%"> @obj.Description </td>
-                        <td width="25%"> @obj.Price </td>
-                        <td width="25%"> @obj.IsActive </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
     </div>
+    
+    <table class="table table-bordered table-striped " style="background-color:lightgray;">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>IsActive</th>  
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var obj in Model.product)
+            {
+                <tr>
+                    <td> @obj.Name </td>
+                    <td> @obj.Description </td>
+                    <td> @obj.Price </td>
+                    <td> @obj.IsActive </td>
+                    <td>
+                        @if (ViewBag.Role == "Dealer")
+                        {
+                            <button class="btn btn-info" asp-controller="Product" asp-action="EditProduct">Edit</button>
+                            <button class="btn btn-danger">Delete</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 @section Scripts
@@ -202,6 +158,7 @@
         <partial name="_ValidationScriptsPartial" />
     }
 }
+
 <script>
     function addpopup(email) {
 

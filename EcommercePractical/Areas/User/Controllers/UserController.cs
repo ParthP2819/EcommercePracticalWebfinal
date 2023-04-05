@@ -52,22 +52,28 @@ namespace EcommercePractical.Areas.User.Controllers
 
             dynamic obj = new ExpandoObject();
             var dealerlist =await _userManager.GetUsersInRoleAsync(Roles.Dealer.ToString());
+            var productlist = _db.product.ToList();
             
             if (curentRole == Roles.SuperAdmin.ToString())
             {
                 obj.dealer = dealerlist;
                 obj.admin = await _userManager.GetUsersInRoleAsync("Admin");
+                obj.product = productlist;
+
             }
 
             if (curentRole == Roles.Admin.ToString())
             {
                 obj.dealer = dealerlist;
+                obj.product = productlist;
+
             }
-            if(curentRole == Roles.Dealer.ToString())
+            if (curentRole == Roles.Dealer.ToString())
             {
                 if (user.Status == Status.Approves)
                 {
-                    obj.product = _db.product.ToList();
+                    
+                   obj.product = productlist.Where(x=>x.CreatedBy==user.Id);
                 }
                 else
                 {
