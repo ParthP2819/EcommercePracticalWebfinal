@@ -1,0 +1,46 @@
+﻿@model Discount
+
+<form method="post" asp-action="AddDiscount">
+    <div class="border p-3 mt-4" style="background-color:lightgray;">
+        <input type="hidden" asp-for="Id" value="@ViewBag.Id" />
+        <div class="row pb-2">
+            <h2 class="text-info">Add Discount</h2>
+            <hr />
+        </div>
+    
+       <div class="form-group mb-3">
+            <label asp-for="DiscountType"></label>
+            <select asp-for="DiscountType" class="form-control">
+                <option>Amount</option>
+                <option>Percentage</option>
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label>Discount Amount/percentage</label>
+            <input asp-for="Amount" class="form-control" />
+            <span asp-validation-for="Amount" style="color:red"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FromDate"></label>
+            <input asp-for="FromDate" class="form-control" />
+        </div>
+        
+        <div class="mb-3">
+            <label asp-for="ToDate"></label>
+            <input asp-for="ToDate" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:150px">Save</button>
+
+        <a class="btn btn-info" asp-controller="User" asp-action="Index" style="width:150px">Back To List</a>
+
+    </div>
+</form>
+
+@section Scripts{
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}

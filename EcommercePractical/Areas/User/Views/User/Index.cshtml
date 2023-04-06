@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <table class="table table-bordered table-striped " @*style="100%"*@ style="background-color:lightgray;">
+    <table class="table table-bordered table-striped " style="background-color:lightgray;">
         <thead>
             <tr>
                 <th> Username </th>
@@ -120,15 +120,19 @@
             </div>
         </div>
     </div>
-    
+
     <table class="table table-bordered table-striped " style="background-color:lightgray;">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Description</th>
-                <th>Price</th>
-                <th>IsActive</th>  
-                <th>Action</th>
+                <th>Main Price</th>
+                <th>Discounted Price</th>
+                <th>IsActive</th>
+                @if (ViewBag.Role == "Dealer")
+                {
+                    <th>Action</th>
+                }
             </tr>
         </thead>
         <tbody>
@@ -138,14 +142,34 @@
                     <td> @obj.Name </td>
                     <td> @obj.Description </td>
                     <td> @obj.Price </td>
-                    <td> @obj.IsActive </td>
-                    <td>
-                        @if (ViewBag.Role == "Dealer")
+                    <td> @obj.DiscountAmount</td>
+
+                    <td class="text-center">
+                        @if (@obj.IsActive == true)
                         {
-                            <button class="btn btn-info" asp-controller="Product" asp-action="EditProduct">Edit</button>
-                            <button class="btn btn-danger">Delete</button>
+                            <a asp-controller="Product" asp-action="Active" asp-route-id="@obj.Id" class="btn btn-success mx-4">Active</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Product" asp-action="DeActive" asp-route-id="@obj.Id" class="btn btn-dark mx-3">InActive</a>
                         }
                     </td>
+                    @if (ViewBag.Role == "Dealer")
+                    {
+                        <td class="text-center">
+                            <div class="w-75 btn-group" role="group">
+                                <a asp-controller="Product" asp-action="AddProduct" asp-route-id="@obj.Id" class="btn btn-info mx-2">
+                                    <i class="bi bi-pencil-square"></i> Update
+                                </a>
+                                <a asp-controller="Product" asp-action="DeleteProduct" asp-route-id="@obj.Id" class="btn btn-info mx-2">
+                                    <i class="bi bi-trash-fill"></i> Delete
+                                </a>
+                                <a asp-controller="Product" asp-action="AddDiscount" asp-route-id="@obj.Id" class="btn btn-info mx-2">
+                                    <i class="bi bi-trash-fill"></i> AddDiscount
+                                </a>
+                            </div>
+                        </td>
+                    }
                 </tr>
             }
         </tbody>

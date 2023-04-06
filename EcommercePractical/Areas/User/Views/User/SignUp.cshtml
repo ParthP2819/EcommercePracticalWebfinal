@@ -2,84 +2,94 @@
 @{
     ViewData["Title"] = "SignUp";
 }
+<form method="post" asp-action="AddProduct" enctype="multipart/form-data">
+    <div class="border p-3 mt-4" style="background-color:lightgray;">
 
-<h1> Register as a User </h1>
+        <div class="row pb-2">
+            <h2 class="text-info">Register as a User</h2>
+            <hr />
+        </div>
+        
+        <div class="mb-3">
+            <input asp-for="UserName" class="form-control" />
+            <label asp-for="UserName"></label>
+        </div>
+        
+        <div class="mb-3">
+            <input asp-for="Email" class="form-control" />
+            <label asp-for="Email"></label>
+        </div>
 
-<div class="container p-3" >
-    <div class="form-control mb-2 border" style="background-color:lightgray;">
-        <form method="post" >
-            <div class="row">
-                <div class="col-12">
-                    <div class="form-floating col-6">
-                        <input asp-for="UserName" class="form-control" />
-                        <label asp-for="UserName"></label>
-                    </div>
-                    <br />
-                    <div class="form-floating col-6">
-                        <input asp-for="Email" class="form-control" />
-                        <label asp-for="Email"></label>
-                    </div>
-                    <br />
-                    <div class="form-floating col-6">
-                        <input asp-for="PhoneNumber" class="form-control" />
-                        <label asp-for="PhoneNumber"></label>
-                    </div>
-                    <br />
-                    <div class="form-floating col-6">
-                        <input asp-for="City" class="form-control" />
-                        <label asp-for="City"></label>
-                    </div>
-                    <br />
-                    <div class="form-floating col-6">
-                        <input asp-for="State" class="form-control" />
-                        <label asp-for="State"></label>
-                    </div>
-                    <br />
-                    <div class="form-floating col-6">
-                        <input asp-for="StreetAddress" class="form-control" />
-                        <label asp-for="StreetAddress"></label>
-                    </div>
-                    </br>
-                    <div class="form-floating col-6">
-                        <input type="text" asp-for="Country" class="form-control" />
-                        <label asp-for="Country"></label>
-                    </div>
-                    <br />
-                    <div class="form-floating col-6">
-                        <input asp-for="PostalCode" class="form-control" />
-                        <label asp-for="PostalCode"></label>
-                    </div>
-                    <br />
-                    <div class="form-floating col-6">
-                        <input type="password" asp-for="Password" class="form-control" />
-                        <label asp-for="Password"></label>
-                    </div>
-                    <br />
-                    <div class="form-floating col-6">
-                        <input type="password" asp-for="ConfirmPassword" class="form-control" />
-                        <label asp-for="ConfirmPassword"></label>
-                    </div>
-                    <br />
-                    <div class="form-floating">
-                        @if (@ViewBag.NotValidUser != null)
-                        {
-                            <label style="color:orangered"> @ViewBag.NotValidUser </label>
-                        }
-                    </div>
-                    @if (User.IsInRole("SuperAdmin"))
-                    {
-                        <button class="btn btn-info" type="submit" asp-controller="User" asp-action="AddAdmin"> AddAdmin </button>
+        <div class="mb-3">
+            <input asp-for="PhoneNumber" class="form-control" />
+            <label asp-for="PhoneNumber"></label>
+        </div>
 
-                    }
-                    else 
-                    {
-                       <button class="btn btn-info" type="submit" asp-controller="User" asp-action="SignUp"> Register </button>
+        <div class="mb-3">
+            <input asp-for="City" class="form-control" />
+            <label asp-for="City"></label>
+        </div>
 
-                    }
+        <div class="mb-3">
+            <input asp-for="State" class="form-control" />
+            <label asp-for="State"></label>
+        </div>
 
-                    <a class="btn btn-info" asp-controller="User" asp-action="Login" asp-area="User"> Click here to Login </a>
-                </div>
-            </div>
-        </form>
+        <div class="mb-3">
+            <input asp-for="StreetAddress" class="form-control" />
+            <label asp-for="StreetAddress"></label>
+        </div>
+
+        <div class="mb-3">
+            <input type="text" asp-for="Country" class="form-control" />
+            <label asp-for="Country"></label>
+        </div>
+
+        <div class="mb-3">
+            <input asp-for="PostalCode" class="form-control" />
+            <label asp-for="PostalCode"></label>
+        </div>
+
+        <div class="mb-3">
+            <input type="password" asp-for="Password" class="form-control" />
+            <label asp-for="Password"></label>
+        </div>
+
+        <div class="mb-3">
+            <input type="password" asp-for="ConfirmPassword" class="form-control" />
+            <label asp-for="ConfirmPassword"></label>
+        </div>
+
+        <div class="mb-3">
+            @if (@ViewBag.NotValidUser != null)
+            {
+                <label style="color:orangered"> @ViewBag.NotValidUser </label>
+            }
+        </div>
+        @if (User.IsInRole("SuperAdmin"))
+        {
+            <button class="btn btn-info" type="submit" asp-controller="User" asp-action="AddAdmin"> AddAdmin </button>
+        }
+        else
+        {
+            <button class="btn btn-info" type="submit" asp-controller="User" asp-action="SignUp"> Register </button>
+        }
+        <a class="btn btn-info" asp-controller="User" asp-action="Login" asp-area="User"> Click here to Login </a>
     </div>
-</div>
+</form>
+
+
+
+
+
+
+
+
+@*<form method="post" >
+<div class="" >
+    <div class="form-control mb-2 border" style="background-color:lightgray;">
+            <div class="row">
+
+            </div>
+
+    </div>*@

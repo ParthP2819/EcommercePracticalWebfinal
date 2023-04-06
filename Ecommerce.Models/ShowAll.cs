@@ -16,6 +16,12 @@
             Reject = 2,
             Block = 3,
                 Admin=5,
-        } 
+        }
+
+        public enum DiscountType
+        {
+            Amount = 0,
+            Percentage = 1,
+        }
     }
 }

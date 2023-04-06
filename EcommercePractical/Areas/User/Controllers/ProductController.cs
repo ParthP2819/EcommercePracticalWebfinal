@@ -3,6 +3,7 @@ using Ecommerce.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using static Ecommerce.Models.ShowAll;
 
 namespace EcommercePractical.Areas.User.Controllers
 {
@@ -90,7 +91,7 @@ namespace EcommercePractical.Areas.User.Controllers
                     {
                         file.CopyTo(fileStreams);
                     }
-                    obj.ImageUrl = /*wwwRootPath +*/ @"\images\products\" + fileName + extension;
+                    obj.ImageUrl =  @"\images\products\" + fileName + extension;
                 }
                 if (obj.Id == 0)
                 {
@@ -106,9 +107,7 @@ namespace EcommercePractical.Areas.User.Controllers
             }
             return View(obj);
 
-            //await _db.product.AddAsync(obj);
-            //await _db.SaveChangesAsync();
-            //return RedirectToAction("Index","User");
+          
         }
 
         //Edit Product
@@ -123,37 +122,85 @@ namespace EcommercePractical.Areas.User.Controllers
         //Delete Product
         public IActionResult DeleteProduct(int id)
         {
-            var data = _db.product.Find(id);
-            _db.product.Remove(data);
+            var product = _db.product.Find(id);
+
+            if (product.ImageUrl != null)
+            {
+                var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, product.ImageUrl.TrimStart('\\'));
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+            }
+
+            _db.product.Remove(product);
             _db.SaveChanges();
-            return RedirectToAction("Index");
+            //TempData["success"] = "Product deleted successfully";
+            return RedirectToAction("Index", "User");
+
+        }
+       
+        public async Task<IActionResult> Active(int id)
+        {
+            var product = _db.product.Find(id);
+
+            if (product.IsActive == true)
+            {
+                product.IsActive = false;
+            }
+            else
+            {
+                product.IsActive = true;
+            }
+            _db.product.Update(product);
+            await _db.SaveChangesAsync();
+            return RedirectToAction("Index", "User");
         }
 
-        ////Add Discount
-        //public IActionResult AddDiscount(int id)
-        //{
-        //    ViewBag.pid = id;
-        //    return View();
-        //}
-        //[HttpPost]
-        //public IActionResult AddDiscount(Discount discount)
-        //{
-        //    _db.discount.Add(discount);
+        public async Task<IActionResult> DeActive(int id)
+        {
+            var product = _db.product.Find(id);
 
-        //    var product = _db.product.Find(discount.ProductId);
+            if (product.IsActive == false)
+            {
+                product.IsActive = true;
+            }
+            else
+            {
+                product.IsActive = false;
+            }
+            _db.product.Update(product);
+            await _db.SaveChangesAsync();
+            return RedirectToAction("Index", "User");
+        }
 
-        //    if (discount.DiscountType == DiscountType.Amount)
-        //    {
-        //        product.DiscountAmount = discount.Amount;
-        //    }
-        //    else
-        //    {
-        //        product.DiscountAmount = (product.Price * discount.Amount) / 100;
+        //Add Discount
+        public IActionResult AddDiscount(int id)
+        {
+            ViewBag.Id = id;
+            //ViewBag.pid = id;
+            return View();
+        }
+        [HttpPost]
+        public IActionResult AddDiscount(Discount dis)
+        {
+            _db.discount.Add(dis);
 
-        //    }
-        //    _db.product.Update(product);
-        //    _db.SaveChanges();
-        //    return RedirectToAction("Index");
-        //}
+            var product = _db.product.Find(dis.Id);
+
+            if (dis.DiscountType == DiscountType.Amount)
+            {
+                product.DiscountAmount = dis.Amount; /*product.Price - dis.Amount;*/
+                
+            }
+            else
+            {
+                product.DiscountAmount = (product.Price * dis.Amount) / 100;
+
+            }
+            _db.product.Update(product);
+            _db.SaveChanges();
+            return RedirectToAction("Index","User");
+        }
     }
 }
