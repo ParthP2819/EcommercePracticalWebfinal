@@ -188,16 +188,44 @@ namespace EcommercePractical.Areas.User.Controllers
 
             var product = _db.product.Find(dis.Id);
 
-            if (dis.DiscountType == DiscountType.Amount)
+            if (dis.FromDate > dis.ToDate)
             {
-                product.DiscountAmount = dis.Amount; /*product.Price - dis.Amount;*/
-                
+                ModelState.AddModelError("obj.ToDate",
+                                         "ToDate must be greater than Fromdate.");
+                return View(dis);
+            }
+            if (dis.DiscountType.ToString() == "Amount")
+            {
+                if(product.Price < dis.Amount)
+                {
+                    ModelState.AddModelError("obj.Amount",
+                                             "Amount can't be greater than Product Actual Price.");
+                    return View(dis);
+                }
+                product.DiscountAmount = product.Price - dis.Amount;
             }
             else
             {
-                product.DiscountAmount = (product.Price * dis.Amount) / 100;
-
+                if (dis.Amount > 100)
+                {
+                    ModelState.AddModelError("obj.Amount",
+                                             "Discount can't be greater than 100%.");
+                    return View(dis);
+                }
+                product.DiscountAmount = product.Price - ((product.Price * dis.Amount) / 100);
             }
+
+
+            //if (dis.DiscountType == DiscountType.Amount)
+            //{
+            //    product.DiscountAmount = dis.Amount; /*product.Price - dis.Amount;*/
+
+            //}
+            //else
+            //{
+            //    product.DiscountAmount = (product.Price * dis.Amount) / 100;
+
+            //}
             _db.product.Update(product);
             _db.SaveChanges();
             return RedirectToAction("Index","User");

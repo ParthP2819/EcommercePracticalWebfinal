@@ -1,5 +1,6 @@
 ﻿@model Discount
 
+@Html.ValidationSummary(false, "", new { @class = "text-danger" })
 <form method="post" asp-action="AddDiscount">
     <div class="border p-3 mt-4" style="background-color:lightgray;">
         <input type="hidden" asp-for="Id" value="@ViewBag.Id" />

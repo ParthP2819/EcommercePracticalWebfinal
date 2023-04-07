@@ -37,13 +37,13 @@ namespace EcommercePractical.Areas.User.Controllers
         
         public async Task<IActionResult> Index()
         {
-            if(!User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
                 return View("page");
             }
             //ViewBag.Role = HttpContext.Session.GetString("user");
 
-            var user = await _userManager.GetUserAsync(User );
+            var user = await _userManager.GetUserAsync(User);
              var role = await _userManager.GetRolesAsync(user);
             var curentRole=role.FirstOrDefault();
             //var curentRole= ViewBag.Role;
