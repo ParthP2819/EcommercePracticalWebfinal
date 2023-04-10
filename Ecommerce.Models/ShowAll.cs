@@ -15,7 +15,7 @@
             Approves = 1,
             Reject = 2,
             Block = 3,
-                Admin=5,
+            Admin = 5,
         }
 
         public enum DiscountType

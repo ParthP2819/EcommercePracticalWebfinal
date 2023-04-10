@@ -52,6 +52,8 @@ namespace EcommercePractical.Areas.User.Controllers
 
             dynamic obj = new ExpandoObject();
             var dealerlist =await _userManager.GetUsersInRoleAsync(Roles.Dealer.ToString());
+            var superadmin = await _userManager.FindByEmailAsync("superadmin@gmail.com ");
+            dealerlist.Remove(superadmin);
             var productlist = _db.product.ToList();
             
             if (curentRole == Roles.SuperAdmin.ToString())
@@ -109,7 +111,7 @@ namespace EcommercePractical.Areas.User.Controllers
          
             ApplicationUser user = new ()
             {
-                Email = register.Email,
+                Email = register.Email.ToString(),
                 SecurityStamp = Guid.NewGuid().ToString(),
                 UserName = register.UserName,
                 PhoneNumber = register.PhoneNumber,
@@ -185,7 +187,7 @@ namespace EcommercePractical.Areas.User.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(Login login)
         {
-            var user = await _userManager.FindByEmailAsync(login.Email);          
+            var user = await _userManager.FindByEmailAsync(login.Email.ToString());          
             var result = await _signInManager.PasswordSignInAsync(user.UserName, login.Password, false, false);
             var temp = await _signInManager.CheckPasswordSignInAsync(user, login.Password,false);
             var Roledata = await _userManager.GetRolesAsync(user);
@@ -268,36 +270,11 @@ namespace EcommercePractical.Areas.User.Controllers
             var user = await _userManager.FindByEmailAsync(email);
             user.IsActive = true;
 
-            user.Status = Status.Approves;
+            user.Status = Status.Pending;
 
             await _db.SaveChangesAsync();
 
             return RedirectToAction("Index");
         }
-
-
-        //if (result.Succeeded || user.IsActive==true )
-        //{
-        //     HttpContext.Response.Cookies.Append("user", user.Email);    
-        //    if (user.UserName == "SuperAdmin" || user.UserName == "Admin")
-        //    {
-        //        return RedirectToAction("Index", "User");
-        //    }
-        //    else
-        //    {
-        //        return BadRequest(new ResponseModel
-        //        {
-        //            Message = "Invalid Credentials",
-        //            Data = user,
-        //            Status = "Not Found"
-        //        });
-        //    }
-        //}
-        //else
-        //{
-        //    ViewBag.NotValidUser = "Invalid credentials:?";
-        //    return RedirectToAction("Index");
-        //}
     }
 }
-

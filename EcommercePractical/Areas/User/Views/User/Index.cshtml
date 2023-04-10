@@ -113,7 +113,7 @@
             <div class="col-6 text-end">
                 @if (ViewBag.Role == "Dealer")
                 {
-                    <a asp-area="User" asp-controller="Product" asp-action="AddProduct" class="btn btn-primary">
+                    <a asp-area="User" asp-controller="Product" asp-action="AddProduct" class="btn btn-info">
                         <i class="bi bi-plus-square"></i> &nbsp; Create New Product
                     </a>
                 }
@@ -123,7 +123,7 @@
 
     <table class="table table-bordered table-striped " style="background-color:lightgray;">
         <thead>
-            <tr>
+            <tr class="text-center">
                 <th>Name</th>
                 <th>Description</th>
                 <th>Main Price</th>
@@ -143,28 +143,27 @@
                     <td> @obj.Description </td>
                     <td> @obj.Price </td>
                     <td> @obj.DiscountAmount</td>
+                    <td> @obj.IsActive</td>
 
-                    <td class="text-center">
-                        @if (@obj.IsActive == true)
-                        {
-                            <a asp-controller="Product" asp-action="Active" asp-route-id="@obj.Id" class="btn btn-success mx-4">Active</a>
-                        }
-                        else
-                        {
-                            <a asp-controller="Product" asp-action="DeActive" asp-route-id="@obj.Id" class="btn btn-dark mx-3">InActive</a>
-                        }
-                    </td>
                     @if (ViewBag.Role == "Dealer")
                     {
                         <td class="text-center">
+                            @if (@obj.IsActive == true)
+                            {
+                                <a asp-controller="Product" asp-action="Active" asp-route-id="@obj.Id" class="btn btn-success mx-2">Active</a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Product" asp-action="DeActive" asp-route-id="@obj.Id" class="btn btn-danger mx-2">InActive</a>
+                            }
                             <div class="w-75 btn-group" role="group">
-                                <a asp-controller="Product" asp-action="AddProduct" asp-route-id="@obj.Id" class="btn btn-info mx-2">
+                                <a asp-controller="Product" asp-action="AddProduct" asp-route-id="@obj.Id" class="btn btn-secondary mx-2">
                                     <i class="bi bi-pencil-square"></i> Update
                                 </a>
-                                <a asp-controller="Product" asp-action="DeleteProduct" asp-route-id="@obj.Id" class="btn btn-info mx-2">
+                                <a asp-controller="Product" asp-action="DeleteProduct" asp-route-id="@obj.Id" class="btn btn-danger mx-2">
                                     <i class="bi bi-trash-fill"></i> Delete
                                 </a>
-                                <a asp-controller="Product" asp-action="AddDiscount" asp-route-id="@obj.Id" class="btn btn-info mx-2">
+                                <a asp-controller="Product" asp-action="AddDiscount" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
                                     <i class="bi bi-trash-fill"></i> AddDiscount
                                 </a>
                             </div>
@@ -222,5 +221,9 @@
 
             }
         });
+    }
+    function CloseModalPopup() {
+        debugger;
+        $("#modelpopup").hide();
     }
 </script>
