@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using static Ecommerce.Models.ShowAll;
 
 namespace EcommercePractical.Areas.User.Controllers
-{
+{   
     public class ProductController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -63,8 +63,9 @@ namespace EcommercePractical.Areas.User.Controllers
                 return View(data);
             }
         }
+
         [HttpPost]
-        public async Task<IActionResult> AddProduct(Product obj,IFormFile? file)
+        public async Task<IActionResult> AddProduct(Product obj,IFormFile? file) 
         {
             var data = await _userManager.GetUserAsync(User);
             obj.CreatedBy = data.Id;
@@ -96,13 +97,15 @@ namespace EcommercePractical.Areas.User.Controllers
                 if (obj.Id == 0)
                 {
                     _db.Add(obj);
+                    TempData["success"] = "Product Create Successfully";
                 }
                 else
                 {
                     _db.Update(obj);
+                    TempData["success"] = "Product Updated Successfully";
                 }
                 await _db.SaveChangesAsync();
-                //TempData["success"] = "Product Create Successfully";
+                
                 return RedirectToAction("Index","User");
             }
             return View(obj);
@@ -122,7 +125,7 @@ namespace EcommercePractical.Areas.User.Controllers
         //Delete Product
         public IActionResult DeleteProduct(int id)
         {
-            var product = _db.product.Find(id);
+            var product = _db.product.Find(id); 
 
             if (product.ImageUrl != null)
             {
@@ -133,7 +136,7 @@ namespace EcommercePractical.Areas.User.Controllers
                 }
             }
 
-            _db.product.Remove(product);
+            _db.product.Remove(product); 
             _db.SaveChanges();
             //TempData["success"] = "Product deleted successfully";
             return RedirectToAction("Index", "User");
@@ -181,7 +184,7 @@ namespace EcommercePractical.Areas.User.Controllers
             //ViewBag.pid = id;
             return View();
         }
-        [HttpPost]
+
         public IActionResult AddDiscount(Discount dis)
         {
             _db.discount.Add(dis);
@@ -230,5 +233,6 @@ namespace EcommercePractical.Areas.User.Controllers
             _db.SaveChanges();
             return RedirectToAction("Index","User");
         }
+
     }
 }

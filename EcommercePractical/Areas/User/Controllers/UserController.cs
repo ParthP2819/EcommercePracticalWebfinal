@@ -7,12 +7,13 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Win32;
 using MimeKit;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Dynamic;
 using static Ecommerce.Models.ShowAll;
 
 namespace EcommercePractical.Areas.User.Controllers
 {
-    public class UserController   : Controller
+    public class UserController  : Controller
     {
         private ApplicationDbContext _db;
         private UserManager<ApplicationUser> _userManager;
@@ -34,9 +35,10 @@ namespace EcommercePractical.Areas.User.Controllers
             _httpContextAccessor = httpContextAccessor;
             _emailSender = emailSender;
         }
-        
-        public async Task<IActionResult> Index()
+       
+        public async Task<IActionResult> Index(int? pageNumber)
         {
+            int pageSize = 6; 
             if (!User.Identity.IsAuthenticated)
             {
                 return View("page");
@@ -54,8 +56,9 @@ namespace EcommercePractical.Areas.User.Controllers
             var dealerlist =await _userManager.GetUsersInRoleAsync(Roles.Dealer.ToString());
             var superadmin = await _userManager.FindByEmailAsync("superadmin@gmail.com ");
             dealerlist.Remove(superadmin);
-            var productlist = _db.product.ToList();
+            var productlist = PageList<Product>.Create(_db.product.ToList(), pageNumber ?? 1, pageSize);
             
+
             if (curentRole == Roles.SuperAdmin.ToString())
             {
                 obj.dealer = dealerlist;
@@ -75,7 +78,7 @@ namespace EcommercePractical.Areas.User.Controllers
                 if (user.Status == Status.Approves)
                 {
                     
-                   obj.product = productlist.Where(x=>x.CreatedBy==user.Id);
+                   obj.product = PageList<Product>.Create(_db.product.Where(x=>x.CreatedBy == user.Id).ToList(), pageNumber ?? 1, pageSize);
                 }
                 else
                 {
@@ -180,9 +183,8 @@ namespace EcommercePractical.Areas.User.Controllers
         public async Task<IActionResult> Login()
         {
             return View();
-        }
-
-
+        } 
+ 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(Login login)

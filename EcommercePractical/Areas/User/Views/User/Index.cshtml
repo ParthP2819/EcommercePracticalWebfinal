@@ -1,5 +1,6 @@
 ﻿@model dynamic
 
+
 @if (ViewBag.Role == "SuperAdmin")
 {
     <div class="container p-3 ">
@@ -92,6 +93,7 @@
             }
         </tbody>
     </table>
+    
 
     <div id="modelpopup" class="modal">
         <div class="modal-dialog">
@@ -113,9 +115,7 @@
             <div class="col-6 text-end">
                 @if (ViewBag.Role == "Dealer")
                 {
-                    <a asp-area="User" asp-controller="Product" asp-action="AddProduct" class="btn btn-info">
-                        <i class="bi bi-plus-square"></i> &nbsp; Create New Product
-                    </a>
+                    <a asp-area="User" asp-controller="Product" asp-action="AddProduct" class="btn btn-info"><i class="bi bi-plus-square"></i> &nbsp; Create New Product</a>
                 }
             </div>
         </div>
@@ -127,7 +127,7 @@
                 <th>Name</th>
                 <th>Description</th>
                 <th>Main Price</th>
-                <th>Discounted Price</th>
+                <th>Discounted Price</th>                                          
                 <th>IsActive</th>
                 @if (ViewBag.Role == "Dealer")
                 {
@@ -135,7 +135,11 @@
                 }
             </tr>
         </thead>
-        <tbody>
+        <tbody >
+            @{
+                var prevDisabled = !Model.product.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.product.HasNextPage ? "disabled" : "";
+            }
             @foreach (var obj in Model.product)
             {
                 <tr>
@@ -173,6 +177,12 @@
             }
         </tbody>
     </table>
+    <a asp-action="Index" asp-route-pageNumber="@(Model.product.PageIndex - 1)" class="btn btn-default @prevDisabled">
+        Previous
+    </a>
+    <a asp-action="Index" asp-route-pageNumber="@(Model.product.PageIndex + 1)" class="btn btn-default @nextDisabled">
+        Next
+    </a>
 }
 
 @section Scripts
@@ -227,3 +237,4 @@
         $("#modelpopup").hide();
     }
 </script>
+
