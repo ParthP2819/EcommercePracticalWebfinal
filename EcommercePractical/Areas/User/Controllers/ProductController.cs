@@ -178,13 +178,14 @@ namespace EcommercePractical.Areas.User.Controllers
         }
 
         //Add Discount
+        [HttpGet]
         public IActionResult AddDiscount(int id)
         {
             ViewBag.Id = id;
             //ViewBag.pid = id;
             return View();
         }
-
+        [HttpPost]
         public IActionResult AddDiscount(Discount dis)
         {
             _db.discount.Add(dis);
